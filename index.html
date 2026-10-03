@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a1024"><title>Yulduzlar Akademiyasi — TITAN</title>
+<script>(function(){try{var t=localStorage.getItem('ya_titan')||'';var d=JSON.parse(t);if(d&&d.theme)document.documentElement.dataset.theme=d.theme;}catch(e){}})();</script>
+<link rel="stylesheet" href="css/base.css"><link rel="stylesheet" href="css/layout.css"><link rel="stylesheet" href="css/components.css"><link rel="stylesheet" href="css/pages.css"><link rel="stylesheet" href="css/animations.css"><link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/settings.css"><link rel="stylesheet" href="css/ultimate.css"><link rel="manifest" href="manifest.webmanifest">
+</head>
+<body>
+<div id="siteLoader" class="site-loader" role="status" aria-live="polite">
+  <div class="loader-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="loader-logo">✦</div>
+  <div class="loader-title">YULDUZLAR <span>AKADEMIYASI</span></div>
+  <div class="loader-subtitle">Raqamli ta'lim olami yuklanmoqda...</div>
+  <div class="loader-track"><span id="loaderBar"></span></div>
+  <div class="loader-percent" id="loaderPercent">0%</div>
+</div>
+<div class="aurora a1"></div><div class="aurora a2"></div><div id="stars"></div>
+<div class="app-shell">
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><div class="brand-mark">✦</div><div><strong>YULDUZLAR</strong><span>AKADEMIYASI</span></div></div>
+  <div class="user-mini"><div class="avatar lg">U</div><div><b>Uvays</b><small>Level 24 · 2 480 XP</small></div><button onclick="App.go('profile')">↗</button></div>
+  <nav id="nav"></nav>
+  <div class="side-goal"><div class="goal-top"><span>⚡ Bugungi maqsad</span><b>72%</b></div><div class="progress"><i style="width:72%"></i></div><small>32 / 45 daqiqa</small></div>
+  <div class="side-auth"><button class="side-bottom" onclick="Auth.open()">🔐 Kirish / Profil</button></div><button class="side-bottom" onclick="App.go('settings')">⚙ Sozlamalar</button>
+</aside>
+<main class="main">
+<header class="topbar"><button class="icon-btn mobile-only" id="menuBtn">☰</button><div class="crumb" id="crumb">Bosh sahifa</div><button class="global-search" id="searchBtn">⌕ <span>Qidirish...</span><kbd>Ctrl K</kbd></button><div class="top-actions"><button class="icon-btn" id="themeBtn">☼</button><button class="icon-btn notif" id="notifBtn">♢<i></i></button><button class="avatar" id="topAvatar" onclick="Auth.open(true)">U</button></div></header>
+<section id="page" class="page"></section>
+</main></div>
+<div id="modal" class="modal" aria-hidden="true"><div class="modal-box"><button class="close" onclick="UI.closeModal()">×</button><div id="modalContent"></div></div></div>
+<div id="authModal" class="modal" aria-hidden="true"><div class="modal-box auth-modal-box"><button class="close" onclick="Auth.close()">×</button><div id="authModalContent"></div></div></div>
+<div id="command" class="modal command-modal" aria-hidden="true"><div class="modal-box command-box"><input id="commandInput" autofocus placeholder="Nimani qidirmoqchisiz?"><div id="commandResults"></div></div></div>
+
+</div>
+<div id="toast"></div><button class="back-top" id="backTop" aria-label="Yuqoriga">↑</button>
+<script src="data/data.js"></script><script src="js/store.js"></script><script src="js/ui.js"></script><script src="js/pages.js"></script><script src="js/app.js"></script><script src="js/extra.js"></script>
+<script>
+(function(){
+ const loader=document.getElementById('siteLoader'),bar=document.getElementById('loaderBar'),pct=document.getElementById('loaderPercent');
+ let value=0; const timer=setInterval(()=>{ value=Math.min(94,value+Math.ceil(Math.random()*9)); if(bar)bar.style.width=value+'%'; if(pct)pct.textContent=value+'%'; if(value>=94)clearInterval(timer); },90);
+ const startTime=Date.now();
+ const finish=()=>{ if(bar)bar.style.width='100%'; if(pct)pct.textContent='100%'; setTimeout(()=>loader&&loader.classList.add('is-hidden'),260); };
+ window.addEventListener('load',()=>{ const remaining=Math.max(0,10000-(Date.now()-startTime)); setTimeout(finish,remaining); });
+ setTimeout(()=>{if(loader&&!loader.classList.contains('is-hidden'))finish()},10500);
+})();
+</script>
+
+<style>
+.auth-modal-box{width:min(520px,100%);padding:32px;background:var(--panel,#10182b);color:var(--text,#fff);border:1px solid var(--line,#26314d)}
+.auth-modal-box .auth-brand-mini{display:flex;gap:12px;align-items:center;margin-bottom:20px}.auth-brand-mini .brand-mark{width:46px;height:46px}
+.auth-modal-box h2{font-size:28px;margin:6px 0}.auth-modal-box .auth-sub{color:var(--muted);font-size:12px;margin-bottom:20px}
+.auth-modal-box label{display:block;font-size:11px;font-weight:800;margin:13px 0}.auth-modal-box input,.auth-modal-box select{display:block;width:100%;margin-top:7px;padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--input,#0b1122);color:var(--text);outline:0}.auth-modal-box .auth-actions{display:grid;gap:9px;margin-top:18px}.auth-modal-box .btn{width:100%}
+html[data-theme="light"] .auth-modal-box{background:#fff;color:#172033}.auth-modal-box .saved{margin-top:12px;padding:10px;border-radius:10px;background:var(--accent-soft,#7c5cff18);font-size:10px}
+</style>
+<script>
+window.Auth=window.Auth||{};
+(function(){
+  function el(id){return document.getElementById(id)}
+  Auth.open=function(showProfile){
+    const d=Store.data(), m=el('authModal'), c=el('authModalContent'); if(!m||!c)return;
+    const name=d.profileName||'', track=d.track||'Frontend';
+    c.innerHTML='<div class="auth-brand-mini"><div class="brand-mark">✦</div><div><b>YULDUZLAR</b><small style="display:block;color:var(--muted);font-size:9px;letter-spacing:2px">AKADEMIYASI</small></div></div>'+
+      '<span class="eyebrow">ACCOUNT CENTER</span><h2>'+ (name?'Profilingiz':'Kirish') +'</h2><p class="auth-sub">Ismingiz va yo‘nalishingizni kiriting. Ma’lumotlar brauzeringizda saqlanadi.</p>'+ 
+      '<label>Ism<input id="authModalName" maxlength="30" value="'+String(name).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')+'" placeholder="Ismingizni kiriting"></label>'+ 
+      '<label>Yo‘nalish<select id="authModalTrack"><option>Frontend</option><option>Backend</option><option>AI</option><option>Design</option><option>Cyber Security</option></select></label>'+ 
+      '<div class="auth-actions"><button class="btn primary" onclick="Auth.saveModal()">✓ Saqlash va kirish</button><button class="btn ghost" onclick="Auth.openProfile()">👤 Profil sahifasi</button></div>'+ 
+      (name?'<div class="saved">✓ Profil faol: <b>'+String(name).replace(/</g,'&lt;')+'</b></div>':'');
+    el('authModalTrack').value=track;
+    m.classList.add('show');m.setAttribute('aria-hidden','false');
+    setTimeout(()=>el('authModalName')?.focus(),50);
+  };
+  Auth.close=function(){const m=el('authModal');if(m){m.classList.remove('show');m.setAttribute('aria-hidden','true')}};
+  Auth.saveModal=function(){const n=el('authModalName')?.value.trim();if(!n){UI.toast('Ism kiriting');return}Store.patch({profileName:n,track:el('authModalTrack')?.value||'Frontend',loggedIn:true});App.refreshUser();Auth.close();App.go('profile');UI.toast('Profil muvaffaqiyatli saqlandi ✓')};
+  Auth.openProfile=function(){Auth.close();App.go('profile')};
+  document.addEventListener('click',e=>{if(e.target===el('authModal'))Auth.close()});
+})();
+</script>
+
+
+<style>#authFinal{display:none;position:fixed;inset:0;z-index:100000;background:rgba(4,8,20,.78);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:18px}#authFinal.show{display:flex}.af-card{width:min(460px,100%);border-radius:24px;padding:30px;background:#10182b;color:#fff;border:1px solid #33405e;box-shadow:0 30px 100px #0008}.af-card h2{margin:8px 0}.af-card p{color:#9ba7bf;font-size:13px}.af-card label{display:block;margin:14px 0;font-size:12px;font-weight:700}.af-card input,.af-card select{box-sizing:border-box;width:100%;margin-top:7px;padding:13px;border-radius:12px;border:1px solid #34415f;background:#0b1122;color:#fff}.af-row{display:grid;gap:10px;margin-top:18px}.af-row button{padding:13px;border-radius:12px;border:0;font-weight:800;cursor:pointer}.af-save{background:linear-gradient(135deg,#6657ed,#9a6cff);color:#fff}.af-close{background:#202a42;color:#fff}.af-logo{font-size:32px}</style>
+<div id="authFinal" aria-hidden="true"><div class="af-card"><button id="afX" class="af-close" style="float:right;border-radius:9px;padding:6px 11px">×</button><div class="af-logo">✦</div><h2 id="afTitle">Kirish</h2><p>Yulduzlar Akademiyasidagi profilingizni boshqaring.</p><label>Ism<input id="afName" maxlength="30" placeholder="Ismingiz"></label><label>Yo‘nalish<select id="afTrack"><option>Frontend</option><option>Backend</option><option>Python</option><option>AI</option><option>Design</option><option>Cyber Security</option></select></label><div class="af-row"><button id="afSave" class="af-save">✓ Saqlash va kirish</button><button id="afProfile" class="af-close">👤 Profil sahifasi</button></div></div></div>
+<script>
+(function(){
+ function data(){try{return JSON.parse(localStorage.getItem('ya_titan')||'{}')}catch(e){return {}}}
+ function save(p){localStorage.setItem('ya_titan',JSON.stringify(Object.assign(data(),p)))}
+ function open(profile){var o=document.getElementById('authFinal'),d=data();if(!o)return;document.getElementById('afTitle').textContent=profile?'Profil':'Kirish';document.getElementById('afName').value=d.profileName||'';document.getElementById('afTrack').value=d.track||'Frontend';o.classList.add('show');o.setAttribute('aria-hidden','false');setTimeout(function(){document.getElementById('afName').focus()},30)}
+ function close(){var o=document.getElementById('authFinal');o.classList.remove('show');o.setAttribute('aria-hidden','true')}
+ window.Auth=window.Auth||{};window.Auth.open=open;window.Auth.close=close;
+ document.getElementById('afX').onclick=close;document.getElementById('afProfile').onclick=function(){close();if(window.App&&typeof App.go==='function')App.go('profile')};
+ document.getElementById('afSave').onclick=function(){var n=document.getElementById('afName').value.trim();if(!n){alert('Ism kiriting');return}save({profileName:n,track:document.getElementById('afTrack').value,loggedIn:true});close();if(window.App&&typeof App.refreshUser==='function')App.refreshUser();if(window.App&&typeof App.go==='function')App.go('profile');};
+ document.addEventListener('click',function(e){var el=e.target.closest('.side-auth .side-bottom,#topAvatar,#profileBtn,[data-auth],[data-page="auth"],[data-page="profile"]');if(el){e.preventDefault();e.stopPropagation();open(el.matches('[data-page="profile"],#profileBtn,#topAvatar')?'profile':'login')}},true);
+})();</script>
+
+
+<!-- Academy entry screen: appears after the loading screen -->
+<div id="academyEntry" class="academy-entry" aria-hidden="true">
+  <div class="entry-glow entry-glow-a"></div>
+  <div class="entry-glow entry-glow-b"></div>
+  <div class="entry-card">
+    <div class="entry-logo">★</div>
+    <div class="entry-kicker">YULDUZLAR AKADEMIYASI</div>
+    <h1>Akademiyaga xush kelibsiz</h1>
+    <p class="entry-subtitle">Davom etish uchun profilingizni kiriting.</p>
+
+    <div class="entry-tabs">
+      <button type="button" class="entry-tab active" data-entry-tab="login">Kirish</button>
+      <button type="button" class="entry-tab" data-entry-tab="profile">Profil</button>
+    </div>
+
+    <form id="academyEntryForm" class="entry-form">
+      <label>
+        Ismingiz
+        <input id="entryName" required maxlength="40" placeholder="Masalan: Uvays">
+      </label>
+      <label>
+        Yo‘nalishingiz
+        <select id="entryTrack">
+          <option>Frontend</option>
+          <option>Backend</option>
+          <option>Full Stack</option>
+          <option>Python</option>
+          <option>AI / Machine Learning</option>
+          <option>UI/UX Design</option>
+          <option>Cyber Security</option>
+        </select>
+      </label>
+      <button class="entry-start" type="submit">
+        <span>Akademiyaga kirish</span><span>→</span>
+      </button>
+    </form>
+
+    <div id="entryExisting" class="entry-existing" hidden>
+      <div class="entry-avatar" id="entryAvatar">U</div>
+      <div>
+        <strong id="entryExistingName">O‘quvchi</strong>
+        <small id="entryExistingTrack">Frontend</small>
+      </div>
+      <button type="button" id="entryContinue">Davom etish →</button>
+    </div>
+
+    <button type="button" id="entryReset" class="entry-reset">Boshqa profil bilan kirish</button>
+  </div>
+</div>
+
+<style>
+.academy-entry{display:none;position:fixed;inset:0;z-index:100000;align-items:center;justify-content:center;padding:22px;overflow:hidden;background:radial-gradient(circle at 50% 15%,#6d5df533,transparent 34%),#070914ee;backdrop-filter:blur(18px)}
+.academy-entry.show{display:flex;animation:entryIn .55s ease both}
+.entry-glow{position:absolute;width:430px;height:430px;border-radius:50%;filter:blur(80px);opacity:.28;animation:entryFloat 7s ease-in-out infinite}
+.entry-glow-a{background:#765cff;left:-150px;top:-120px}.entry-glow-b{background:#00c8ff;right:-170px;bottom:-170px;animation-delay:-3s}
+.entry-card{position:relative;width:min(470px,100%);padding:34px;border:1px solid #ffffff22;border-radius:30px;background:linear-gradient(145deg,#171a31ee,#0e1122ee);box-shadow:0 35px 100px #0009,0 0 70px #765cff18;color:#fff;overflow:hidden}
+.entry-card:before{content:"";position:absolute;inset:-2px;background:linear-gradient(110deg,transparent,#ffffff12,transparent);transform:translateX(-100%);animation:entrySweep 4s linear infinite;pointer-events:none}
+.entry-logo{width:66px;height:66px;border-radius:21px;display:grid;place-items:center;margin-bottom:17px;background:linear-gradient(135deg,#6959ff,#a16bff);box-shadow:0 0 35px #765cff77;font-size:30px;animation:entryPulse 2.2s ease-in-out infinite}
+.entry-kicker{font-size:10px;letter-spacing:2.4px;color:#a99cff;font-weight:800}
+.entry-card h1{font-size:29px;line-height:1.12;margin:9px 0 8px}.entry-subtitle{color:#aeb5ca;font-size:13px;margin-bottom:22px}
+.entry-tabs{display:flex;gap:7px;padding:5px;background:#ffffff0b;border:1px solid #ffffff12;border-radius:13px;margin-bottom:18px}
+.entry-tab{flex:1;border:0;border-radius:9px;padding:10px;background:transparent;color:#aeb5ca;font-weight:800;cursor:pointer}.entry-tab.active{background:#ffffff12;color:#fff}
+.entry-form label{display:block;font-size:11px;font-weight:800;color:#dce0ef;margin:12px 0}
+.entry-form input,.entry-form select{width:100%;box-sizing:border-box;margin-top:7px;padding:13px 14px;border-radius:13px;border:1px solid #ffffff16;background:#080b18;color:#fff;outline:0}
+.entry-form input:focus,.entry-form select:focus{border-color:#8778ff;box-shadow:0 0 0 3px #7660ff18}
+.entry-start{width:100%;margin-top:10px;border:0;border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#6959ff,#a16bff);color:#fff;font-weight:900;cursor:pointer;box-shadow:0 12px 30px #765cff33;transition:.25s}
+.entry-start:hover{transform:translateY(-2px);box-shadow:0 18px 38px #765cff55}
+.entry-existing{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid #ffffff13;background:#ffffff08;border-radius:15px;margin-top:18px}
+.entry-avatar{width:43px;height:43px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#6959ff,#a16bff);font-weight:900}.entry-existing div:nth-child(2){display:flex;flex-direction:column;flex:1}.entry-existing small{color:#9da6bc;margin-top:3px}.entry-existing button{border:0;background:#ffffff10;color:#fff;padding:9px 10px;border-radius:9px;cursor:pointer}
+.entry-reset{display:none;width:100%;margin-top:12px;border:0;background:transparent;color:#9da6bc;font-size:11px;cursor:pointer}
+@keyframes entryIn{from{opacity:0;transform:scale(.96) translateY(12px)}to{opacity:1;transform:none}}
+@keyframes entryFloat{50%{transform:translate(30px,-25px) scale(1.08)}}
+@keyframes entryPulse{50%{transform:scale(1.04);box-shadow:0 0 48px #765cff99}}
+@keyframes entrySweep{to{transform:translateX(100%)}}
+@media(max-width:560px){.entry-card{padding:25px;border-radius:24px}.entry-card h1{font-size:24px}.entry-logo{width:56px;height:56px}}
+</style>
+
+<script>
+(function(){
+  const screen=document.getElementById('academyEntry');
+  const form=document.getElementById('academyEntryForm');
+  const name=document.getElementById('entryName');
+  const track=document.getElementById('entryTrack');
+  const existing=document.getElementById('entryExisting');
+  const existingName=document.getElementById('entryExistingName');
+  const existingTrack=document.getElementById('entryExistingTrack');
+  const avatar=document.getElementById('entryAvatar');
+  const continueBtn=document.getElementById('entryContinue');
+  const resetBtn=document.getElementById('entryReset');
+  const tabs=[...document.querySelectorAll('[data-entry-tab]')];
+
+  function getProfile(){try{return JSON.parse(localStorage.getItem('ya_profile')||'null')}catch(e){return null}}
+  function saveProfile(p){localStorage.setItem('ya_profile',JSON.stringify(p))}
+  function openEntry(){
+    const p=getProfile();
+    if(p){
+      existing.hidden=false; resetBtn.style.display='block';
+      existingName.textContent=p.name||'O‘quvchi';
+      existingTrack.textContent=p.track||'Frontend';
+      avatar.textContent=(p.name||'O')[0].toUpperCase();
+      name.value=p.name||''; track.value=p.track||'Frontend';
+    } else {
+      existing.hidden=true; resetBtn.style.display='none';
+      name.focus();
+    }
+    screen.classList.add('show'); screen.setAttribute('aria-hidden','false');
+  }
+  function closeEntry(){
+    screen.classList.remove('show'); screen.setAttribute('aria-hidden','true');
+  }
+  window.openAcademyEntry=openEntry;
+
+  tabs.forEach(tab=>tab.addEventListener('click',()=>{
+    tabs.forEach(x=>x.classList.remove('active')); tab.classList.add('active');
+    const p=getProfile();
+    if(tab.dataset.entryTab==='profile' && p){name.value=p.name||'';track.value=p.track||'Frontend'}
+    else if(tab.dataset.entryTab==='login'){name.value='';}
+  }));
+
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    const p={name:name.value.trim()||'O‘quvchi',track:track.value};
+    saveProfile(p);
+    closeEntry();
+    document.dispatchEvent(new CustomEvent('academy:profile-ready',{detail:p}));
+  });
+
+  continueBtn.addEventListener('click',closeEntry);
+  resetBtn.addEventListener('click',()=>{
+    existing.hidden=true; resetBtn.style.display='none'; name.value=''; name.focus();
+  });
+
+  // Show automatically after the loading overlay disappears.
+  function showAfterLoading(){
+    const loading=document.querySelector('[id*="loading" i], .loading-screen, .loader-screen, .preloader');
+    if(loading){
+      const obs=new MutationObserver(()=>{
+        const hidden=getComputedStyle(loading).display==='none' || loading.classList.contains('hidden') || loading.getAttribute('aria-hidden')==='true';
+        if(hidden){obs.disconnect();setTimeout(openEntry,180)}
+      });
+      obs.observe(loading,{attributes:true,attributeFilter:['class','style','aria-hidden']});
+      setTimeout(()=>{if(!screen.classList.contains('show'))openEntry()},10500);
+    } else setTimeout(openEntry,10000);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',showAfterLoading);else showAfterLoading();
+})();
+</script>
+
+</body></html>

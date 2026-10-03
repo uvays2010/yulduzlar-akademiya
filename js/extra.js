@@ -1,0 +1,1 @@
+const Extra={init(){const b=document.getElementById('backTop');if(b){window.addEventListener('scroll',()=>b.classList.toggle('show',scrollY>500),{passive:true});b.onclick=()=>scrollTo({top:0,behavior:'smooth'})} if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}}};document.addEventListener('DOMContentLoaded',()=>Extra.init());

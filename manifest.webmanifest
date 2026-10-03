@@ -1,0 +1,10 @@
+{
+  "name":"Yulduzlar Akademiyasi TITAN PRO",
+  "short_name":"Yulduzlar Akademiyasi",
+  "lang":"uz",
+  "start_url":"./index.html",
+  "display":"standalone",
+  "background_color":"#071022",
+  "theme_color":"#7c5cff",
+  "description":"Interaktiv ta'lim platformasi"
+}

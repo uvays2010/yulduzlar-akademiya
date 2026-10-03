@@ -1,0 +1,10 @@
+const UI={
+ toast(msg){const d=Store.data();if(d.sounds){/* sound setting is intentionally silent-friendly */}const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(this.t);this.t=setTimeout(()=>el.classList.remove('show'),2400)},
+confirmAction(title,text,yes){this.modal(`<span class="eyebrow">TASDIQLASH</span><h2>${title}</h2><p>${text}</p><div class="settings-actions"><button class="btn ghost" onclick="UI.closeModal()">Bekor qilish</button><button class="btn primary" onclick="${yes}">Tasdiqlash</button></div>`)},
+exportData(){const blob=new Blob([Store.export()],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='yulduzlar-akademiyasi-settings.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);this.toast('Ma’lumotlar yuklab olindi ✓')},
+importData(input){const file=input.files&&input.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const obj=JSON.parse(r.result);Store.save({...Store.defaults,...obj});App.applyTheme();App.applySettings();App.refreshUser();App.go('settings');this.toast('Ma’lumotlar tiklandi ✓')}catch(e){this.toast('JSON fayl noto‘g‘ri')}};r.readAsText(file)},
+ modal(html){document.getElementById('modalContent').innerHTML=html;document.getElementById('modal').classList.add('show');document.getElementById('modal').setAttribute('aria-hidden','false')},
+ closeModal(){document.getElementById('modal').classList.remove('show');document.getElementById('modal').setAttribute('aria-hidden','true')},
+ command(show=true){const m=document.getElementById('command');m.classList.toggle('show',show);if(show){document.getElementById('commandInput').value='';setTimeout(()=>document.getElementById('commandInput').focus(),50);this.commands('')}},
+ commands(q){const list=DATA.nav.filter(x=>(x[2]+' '+x[0]).toLowerCase().includes(q.toLowerCase()));document.getElementById('commandResults').innerHTML=list.map(x=>`<button class="command-item" onclick="UI.command(false);App.go('${x[0]}')"><span>${x[1]}</span><b>${x[2]}</b><small>Enter</small></button>`).join('')||'<p class="empty">Natija topilmadi</p>'}
+};
